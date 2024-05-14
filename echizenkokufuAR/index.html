@@ -760,7 +760,7 @@ body {
         function checkRange(lat, lon) {
             var targetLat = 35.905512;
             var targetLon = 136.166730;
-            var range = 0.0005;
+            var range = 0.001;
 
             if (Math.abs(lat - targetLat) <= range && Math.abs(lon - targetLon) <= range) {
                 return true;
