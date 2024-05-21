@@ -13,10 +13,41 @@ body {
   font-family: Arial, sans-serif;
   overflow: hidden;
 }
+#rotateMessageContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 1);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 10002;
+  display: none;
+}
+#rotateMessage {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 20px;
+  margin-top: 20px;
+}
+#rotateImage {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 70%;
+  max-height: 70vh;
+  margin-top: 20px;
+}
 #message {
   position: absolute;
   top: 30%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.8);
   margin: 10px;
   padding: 10px;
   border: 1px solid #ccc;
@@ -26,7 +57,7 @@ body {
 #messageURL {
   position: absolute;
   top: 50%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.8);
   margin: 10px;
   padding: 10px;
   border: 1px solid #ccc;
@@ -93,8 +124,22 @@ body {
 .circle.num0 {
   width: 50px;
   height: 50px;
-  top: 90%;
+  top: 70%;
   right: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  animation: growShrink 1s infinite alternate;
+}
+@keyframes growShrink {
+  0% {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(255, 255, 255, 1);
+  }
 }
 .circle.top {
   width: 50px;
@@ -162,18 +207,23 @@ body {
 </script>
 
 <body>
+    <div id="rotateMessageContainer">
+      <div id="rotateMessage">Rotate Your Phone</div>
+      <img id="rotateImage" src="./image/00.png">
+    </div>
+
     <div id="message"></div>
     <a href="#" id="messageURL"></a>
 
     <div class="container-box">
       <div class="box" id="overviewButton">概要</div>
       <div class="box" id="Showing">全部表示</div>
-      <div class="box" onclick="location.href='./model0.html'">遺構表示</div>
+      <div class="box" onclick="window.open('./model0.html', '_blank')">遺構表示</div>
       <div class="box" onclick="location.reload()">再読込み</div>
     </div>
 
     <div id="container-circle">
-      <div class="circle num0" onclick="moveLocation(destination0)">Start</div>
+      <div class="circle num0" onclick="moveLocation(destination0); fixSize()">Start</div>
       <div class="circle num1" onclick="moveLocation(destination1)">北</div>
       <div class="circle num2" onclick="moveLocation(destination2)"></div>
       <div class="circle num3" onclick="moveLocation(destination3)">南</div>
@@ -243,6 +293,12 @@ body {
 
       fetchLocations();
 
+      function fixSize() {
+        var circle = document.querySelector('.circle.num0');
+        circle.style.display = 'none';
+        // circle.style.animation = 'none';
+      }
+      
       // モーダルが表示されているかどうかを追跡するフラグ
       let isModalVisible = false;
 
@@ -404,10 +460,8 @@ body {
               return;
           }
 
-          // 親要素を作成
           const parentEntity = document.createElement('a-entity');
           
-          // 画像を作成
           const image = document.createElement('a-image');
           image.classList.add(`spawned-image${i}`);
           image.setAttribute('src', imageUrl);
@@ -423,10 +477,8 @@ body {
           image.setAttribute('animation__position', `property: position; to: ${finalPosition.x} ${finalPosition.y} ${finalPosition.z}; dur: 2000; easing: easeInOutQuad`);
           image.setAttribute('animation__scale', `property: scale; to: ${finalScale.x} ${finalScale.y} ${finalScale.z}; dur: 2000; easing: easeInOutQuad`);
 
-          // 親子関係を設定
           parentEntity.appendChild(image);
 
-          // 画像を追加する場所を決定
           const clickableElements = document.querySelectorAll('.clickable');
           if (clickableElements[i - 1]) {
               clickableElements[i - 1].appendChild(parentEntity);
@@ -436,13 +488,13 @@ body {
       }
 
       function spawnModel(i, finalScale) {
-        const model = document.createElement('a-entity');
-        model.classList.add(`spawned-model${i}`);
-        model.setAttribute('gltf-model', `#model-asset${i}`);
-        model.setAttribute('animation__position', 'property: position; to: 0 5 0; dur: 2000; easing: easeInOutQuad');
-        model.setAttribute('scale', '0 0 0');
-        model.setAttribute('animation__scale', `property: scale; to: ${finalScale.x} ${finalScale.y} ${finalScale.z}; dur: 2000; easing: easeInOutQuad`);
-        model.setAttribute('animation__rotation', 'property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear');
+          const model = document.createElement('a-entity');
+          model.classList.add(`spawned-model${i}`);
+          model.setAttribute('gltf-model', `#model-asset${i}`);
+          model.setAttribute('animation__position', 'property: position; to: 0 5 0; dur: 2000; easing: easeInOutQuad');
+          model.setAttribute('scale', '0 0 0');
+          model.setAttribute('animation__scale', `property: scale; to: ${finalScale.x} ${finalScale.y} ${finalScale.z}; dur: 2000; easing: easeInOutQuad`);
+          model.setAttribute('animation__rotation', 'property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear');
 
         const clickableElements = document.querySelectorAll('.clickable');
         if (clickableElements[i - 1]) {
@@ -488,7 +540,6 @@ body {
       function Spawn14(){spawnModelImage(14, { x: 1 * sizeMultiplier, y: 1 * sizeMultiplier, z: 1 * sizeMultiplier }, { x: 0.5 * sizeMultiplier, y: 1.2 * sizeMultiplier, z: 1.55 * sizeMultiplier }, { x: 1.5 * sizeMultiplier, y: 1.5 * sizeMultiplier, z: 0 }, 180, baseUrl + "21400_kokufuhakkutsu.png");}
       function Spawn15(){spawnImageOnly(15, { x: 0 * sizeMultiplier, y: 1.2 * sizeMultiplier, z: -0.7 * sizeMultiplier }, { x: 1.5 * sizeMultiplier, y: 1.5 * sizeMultiplier, z: 0 }, 0,  baseUrl + "21500_kokufuhakkutsu.png");}
       function Spawn16(){spawnImageOnly(16, { x: -0.9 * sizeMultiplier, y: 1.2 * sizeMultiplier, z: -2.0 * sizeMultiplier }, { x: 1.5 * sizeMultiplier, y: 1.5 * sizeMultiplier, z: 0 }, 0, baseUrl + "21600_kokufuhakkutsu.png");}
-
     </script>
 
     <a-scene cursor="rayOrigin: mouse" raycaster="objects: .clickable" arjs="sourceType: webcam; videoTexture: true;" renderer="colorManagement: true;" vr-mode-ui="enabled: false">
@@ -513,12 +564,12 @@ body {
           <a-asset-item id="text-asset15" src="https://echizencity.github.io/opendata/kokufuhakkutsu/text15.glb"></a-asset-item>
           <a-asset-item id="text-asset16" src="https://echizencity.github.io/opendata/kokufuhakkutsu/text15.glb"></a-asset-item>
 
-          <a-asset-item id="model-asset2" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model02.glb"></a-asset-item>
-          <a-asset-item id="model-asset4" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model04.glb"></a-asset-item>
-          <a-asset-item id="model-asset9" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model09.glb"></a-asset-item>
-          <a-asset-item id="model-asset11" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model11.glb"></a-asset-item>
-          <a-asset-item id="model-asset12" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model12.glb"></a-asset-item>
-          <a-asset-item id="model-asset14" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model14.glb"></a-asset-item>
+          <a-asset-item id="model-asset2" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model02_small.glb"></a-asset-item>
+          <a-asset-item id="model-asset4" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model04_small.glb"></a-asset-item>
+          <a-asset-item id="model-asset9" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model09_small.glb"></a-asset-item>
+          <a-asset-item id="model-asset11" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model11_small.glb"></a-asset-item>
+          <a-asset-item id="model-asset12" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model12_small.glb"></a-asset-item>
+          <a-asset-item id="model-asset14" src="https://echizencity.github.io/opendata/kokufuhakkutsu/model14_small.glb"></a-asset-item>
       </a-assets>
 
       <!-- player -->
@@ -546,6 +597,7 @@ body {
       </a-entity>
 
       <a-entity id="container" position="-0.5 -0.5 -15" rotation="0 -90 0" visible="false">
+      <!-- <a-entity id="container" position="0 -0.5 0" rotation="0 -90 0" visible="false"> -->
 
         <!-- ui element -->
         <a-entity class="clickable" spawn-sphere1 geometry="primitive: sphere" position="1.5 0.8 -0.5" material="color: white"></a-entity>
@@ -575,22 +627,55 @@ body {
 
         <a-entity gltf-model="#text-asset1" scale="0.15 0.15 0.15" position="1.9 0.8 -0.5" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#text-asset2" scale="0.15 0.15 0.15" position="1.8 0.8 1.8" rotation="0 180 0"></a-entity>
+        <a-box data-url="./model2.html" class="clickable blinking" cursor-listener position="1.8 0.8 1.8" scale="0.5 0.001 0.15" rotation="0 0 0" color="white" opacity="0"></a-box>
         <a-entity gltf-model="#text-asset3" scale="0.15 0.15 0.15" position="4.3 0.8 -0.5" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#text-asset4" scale="0.15 0.15 0.15" position="3.8 0.8 2.2" rotation="0 180 0"></a-entity>
+        <a-box data-url="./model4.html" class="clickable blinking" cursor-listener position="3.8 0.8 2.2" scale="0.6 0.001 0.15" rotation="0 0 0" color="white" opacity="0"></a-box>
         <a-entity gltf-model="#text-asset5" scale="0.15 0.15 0.15" position="-0.5 0.8 -0.9" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#text-asset6" scale="0.15 0.15 0.15" position="-2.8 0.8 0" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#text-asset7" scale="0.15 0.15 0.15" position="2.8 0.8 0.5" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#text-asset8" scale="0.15 0.15 0.15" position="7.1 0.8 2.1" rotation="0 180 0"></a-entity>
         <a-entity gltf-model="#text-asset9" scale="0.15 0.15 0.15" position="6.1 0.8 2.0" rotation="0 180 0"></a-entity>
+        <a-box data-url="./model9.html" class="clickable blinking" cursor-listener position="6.1 0.8 2.0" scale="0.5 0.001 0.15" rotation="0 0 0" color="white" opacity="0"></a-box>
         <a-entity gltf-model="#text-asset10" scale="0.15 0.15 0.15" position="-7.6 0.8 2.9" rotation="0 180 0"></a-entity>
         <a-entity gltf-model="#text-asset11" scale="0.15 0.15 0.15" position="-7.25 0.8 2.7" rotation="0 180 0"></a-entity>
+        <a-box data-url="./model11.html" class="clickable blinking" cursor-listener position="-7.25 0.8 2.7" scale="0.5 0.001 0.15" rotation="0 0 0" color="white" opacity="0"></a-box>
         <a-entity gltf-model="#text-asset12" scale="0.15 0.15 0.15" position="-7.0 0.8 2.45" rotation="0 180 0"></a-entity>
+        <a-box data-url="./model12.html" class="clickable blinking" cursor-listener position="-7.0 0.8 2.45" scale="0.5 0.001 0.15" rotation="0 0 0" color="white" opacity="0"></a-box>
         <a-entity gltf-model="#text-asset13" scale="0.15 0.15 0.15" position="4.5 0.65 1.35" rotation="0 180 0"></a-entity>
         <a-entity gltf-model="#text-asset14" scale="0.15 0.15 0.15" position="4.8 0.8 1.55" rotation="0 180 0"></a-entity>
+        <a-box data-url="./model14.html" class="clickable blinking" cursor-listener position="4.8 0.8 1.55" scale="0.5 0.001 0.15" rotation="0 0 0" color="white" opacity="0"></a-box>
         <a-entity gltf-model="#text-asset15" scale="0.15 0.15 0.15" position="-6.9 0.8 0.2" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#text-asset15" scale="0.15 0.15 0.15" position="-5.4 0.8 2.9" rotation="0 180 0"></a-entity>
         <a-entity gltf-model="#text-asset15" scale="0.15 0.15 0.15" position="-6.4 0.8 -2.1" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#text-asset16" scale="0.15 0.15 0.15" position="7.3 0.8 -0.8" rotation="0 0 0"></a-entity>
+        
+        <script>
+          setInterval(function() {
+            var boxes = document.querySelectorAll('.blinking');
+            boxes.forEach(function(box) {
+              if (box.getAttribute('opacity') === '0') {
+                box.setAttribute('opacity', '0.4');
+              } else {
+                box.setAttribute('opacity', '0');
+              }
+            });
+          }, 1500);
+        </script>
+
+        <script>
+          AFRAME.registerComponent('cursor-listener', {
+            init: function () {
+              var el = this.el;
+              el.addEventListener('click', function () {
+                var targetURL = el.getAttribute('data-url');
+                if (targetURL) {
+                  window.open(targetURL, '_blank');
+                }
+              });
+            }
+          });
+        </script>
 
         <script>
           for (let i = 1; i <= 16; i++) {
@@ -658,7 +743,6 @@ body {
             });
         }
 
-
         let isShowing = false;
 
         document.getElementById("Showing").addEventListener("click", function() {
@@ -710,7 +794,7 @@ body {
 
         function onTouchEnd(event) {
             if (event.touches.length == 0) {
-                isTwoFingerTouch = false; // 2本指でのタッチを解除
+                isTwoFingerTouch = false;
             }
         }
 
@@ -854,10 +938,36 @@ body {
             messageURLElement.style.display = "block";
         }
 
-
-        // HTMLページ読み込み時にgetLocationを呼び出す
         getLocation();
 
+        let orientation = 0;
+
+        function checkOrientation() {
+            var orientation;
+            if(window.orientation !== undefined) {
+                orientation = window.orientation;
+            } else {
+                orientation = 0;
+            }
+
+            if (window.matchMedia("(min-width: 1000px)").matches || Math.abs(window.orientation) === 0) {
+                document.getElementById('rotateMessageContainer').style.display = 'none';
+            } else {
+                document.getElementById('rotateMessageContainer').style.display = 'block';
+            }
+        }
+
+        window.addEventListener('load', function() {
+            checkOrientation();
+        });
+
+        window.addEventListener('orientationchange', function() {
+            checkOrientation();
+        });
+
+        window.addEventListener('resize', function() {
+            checkOrientation();
+        });
     </script>
 </body>
 </html>
