@@ -67,6 +67,17 @@ body {
 #container-circle {
   display: none;
 }
+#waiting-message {
+  position: fixed;
+  top: 40%;
+  width: 100%;
+  text-align: center;
+  transform: translate(0%, -50%);
+  background-color: rgba(255, 255, 255, 1);
+  padding: 10px 0px;
+  display: block;
+  z-index: 10001;
+}
 .container-box {
   display: flex;
   justify-content: space-between;
@@ -133,12 +144,12 @@ body {
   0% {
     width: 50px;
     height: 50px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(0, 255, 255, 0.8);
   }
   100% {
     width: 70px;
     height: 70px;
-    background-color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 255, 255, 1);
   }
 }
 .circle.top {
@@ -214,6 +225,8 @@ body {
 
     <div id="message"></div>
     <a href="#" id="messageURL"></a>
+
+    <div id="waiting-message">ロード中…しばらくお待ちください</div>
 
     <div class="container-box">
       <div class="box" id="overviewButton">概要</div>
@@ -296,7 +309,6 @@ body {
       function fixSize() {
         var circle = document.querySelector('.circle.num0');
         circle.style.display = 'none';
-        // circle.style.animation = 'none';
       }
       
       // モーダルが表示されているかどうかを追跡するフラグ
@@ -349,12 +361,10 @@ body {
               const clickablePosition = clickableElement.getAttribute('position');
               lineElement.setAttribute('line', 'color: white; opacity: 0.8;');
               // 線の始点と終点の座標を設定
-              setTimeout(() => {
-                  lineElement.setAttribute('line', {
-                      start: `${clickablePosition.x} ${clickablePosition.y} ${clickablePosition.z}`,
-                      end: `${clickablePosition.x + finalPositionImage.x/sizeMultiplier} ${clickablePosition.y + finalPositionImage.y/sizeMultiplier - finalScaleImage.y/(2 * sizeMultiplier)} ${clickablePosition.z + finalPositionImage.z/sizeMultiplier}`
-                  });
-              }, 2000);
+              lineElement.setAttribute('line', {
+                  start: `${clickablePosition.x} ${clickablePosition.y} ${clickablePosition.z}`,
+                  end: `${clickablePosition.x + finalPositionImage.x/sizeMultiplier} ${clickablePosition.y + finalPositionImage.y/sizeMultiplier - finalScaleImage.y/(2 * sizeMultiplier)} ${clickablePosition.z + finalPositionImage.z/sizeMultiplier}`
+              });
           } else {
               // 画像を削除
               if (existingImage) {
@@ -385,12 +395,10 @@ body {
               const clickablePosition = clickableElement.getAttribute('position');
               lineElement.setAttribute('line', 'color: white; opacity: 0.8;');
               // 線の始点と終点の座標を設定
-              setTimeout(() => {
-                  lineElement.setAttribute('line', {
-                      start: `${clickablePosition.x} ${clickablePosition.y} ${clickablePosition.z}`,
-                      end: `${clickablePosition.x + finalPositionImage.x/sizeMultiplier} ${clickablePosition.y + finalPositionImage.y/sizeMultiplier - finalScaleImage.y/(2 * sizeMultiplier)} ${clickablePosition.z + finalPositionImage.z/sizeMultiplier}`
-                  });
-              }, 2000);
+              lineElement.setAttribute('line', {
+                  start: `${clickablePosition.x} ${clickablePosition.y} ${clickablePosition.z}`,
+                  end: `${clickablePosition.x + finalPositionImage.x/sizeMultiplier} ${clickablePosition.y + finalPositionImage.y/sizeMultiplier - finalScaleImage.y/(2 * sizeMultiplier)} ${clickablePosition.z + finalPositionImage.z/sizeMultiplier}`
+              });
           } else {
               // モデルを削除
               if (existingModel) {
@@ -428,12 +436,10 @@ body {
               const clickablePosition = clickableElement.getAttribute('position');
               lineElement.setAttribute('line', 'color: white; opacity: 0.8;');
               // 線の始点と終点の座標を設定
-              setTimeout(() => {
-                  lineElement.setAttribute('line', {
-                      start: `${clickablePosition.x} ${clickablePosition.y} ${clickablePosition.z}`,
-                      end: `${clickablePosition.x + finalPositionImage.x/sizeMultiplier} ${clickablePosition.y + finalPositionImage.y/sizeMultiplier - finalScaleImage.y/(2 * sizeMultiplier)} ${clickablePosition.z + finalPositionImage.z/sizeMultiplier}`
-                  });
-              }, 2000);
+              lineElement.setAttribute('line', {
+                  start: `${clickablePosition.x} ${clickablePosition.y} ${clickablePosition.z}`,
+                  end: `${clickablePosition.x + finalPositionImage.x/sizeMultiplier} ${clickablePosition.y + finalPositionImage.y/sizeMultiplier - finalScaleImage.y/(2 * sizeMultiplier)} ${clickablePosition.z + finalPositionImage.z/sizeMultiplier}`
+              });
           } else {
               // Boxを削除
               if (existingModel) {
@@ -516,7 +522,9 @@ body {
         AFRAME.registerComponent(`spawn-sphere${i}`, {
           init: function () {
             this.el.addEventListener('click', () => {
-              window[`Spawn${i}`]();
+              if (isOneFingerTouch) {
+                window[`Spawn${i}`]();
+              }
             });
           }
         });
@@ -764,15 +772,9 @@ body {
             document.addEventListener('touchstart', onTouchStart, { passive: false });
             document.addEventListener('touchmove', onTouchMove, { passive: false });
             document.addEventListener('touchend', onTouchEnd, false);
-            document.addEventListener('touchend', function (event) {
-                var now = (new Date()).getTime();
-                if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
-                }
-                lastTouchEnd = now;
-            }, false);
         };
 
+        let isOneFingerTouch = false;
         let isTwoFingerTouch = false;
 
         function onTouchStart(event) {
@@ -780,6 +782,7 @@ body {
                 return;
             }
             if (event.touches.length == 1) {
+                isOneFingerTouch = true;
                 touchStartX = event.touches[0].clientX;
                 touchStartY = event.touches[0].clientY;
             }
@@ -794,6 +797,7 @@ body {
 
         function onTouchEnd(event) {
             if (event.touches.length == 0) {
+                isOneFingerTouch = false;
                 isTwoFingerTouch = false;
             }
         }
@@ -877,6 +881,7 @@ body {
             var inRange = checkRange(latitude, longitude);
             var messageElement = document.getElementById("message");
             var messageURLElement = document.getElementById("messageURL");
+            var messageWaitElement = document.getElementById("waiting-message");
             var containerElement = document.getElementById("container-circle");
             
             if (inRange) {
@@ -884,6 +889,7 @@ body {
                 containerElement.style.display = "block";
                 messageElement.style.display = "none";
                 messageURLElement.style.display = "none";
+                messageWaitElement.style.display = "none";
             } else {
                 document.getElementById("container").setAttribute("visible", "false");
                 messageElement.textContent = "表示エリアから離れています。再読込みしてください。";
@@ -893,6 +899,7 @@ body {
                 containerElement.style.display = "none";
                 messageElement.style.display = "block";
                 messageURLElement.style.display = "block";
+                messageWaitElement.style.display = "none";
             }
         }
 
@@ -911,6 +918,7 @@ body {
         function showError(error) {
             var messageElement = document.getElementById("message");
             var messageURLElement = document.getElementById("messageURL");
+            var messageWaitElement = document.getElementById("waiting-message");
             var containerElement = document.getElementById("container-circle");
 
             var message = "";
@@ -938,6 +946,7 @@ body {
             containerElement.style.display = "none";
             messageElement.style.display = "block";
             messageURLElement.style.display = "block";
+            messageWaitElement.style.display = "none";
         }
 
         getLocation();
